@@ -1,0 +1,6 @@
+*.pyc
+*#
+*~
+**/tests_local
+**/results
+.venv
