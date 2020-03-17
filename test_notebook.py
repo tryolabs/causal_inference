@@ -219,3 +219,67 @@ plt.show()
 
 
 # %%
+# WALMART DATA FOR SEVERAL PRODUCT/STORES
+df_walmart = pd.read_pickle("df_max_sales.pkl")
+# %%
+df_monthly = (
+    df_walmart.groupby(["item_id", "store_id", pd.Grouper(key="date", freq="M")])["sales_units"]
+    .sum()
+    .reset_index()
+)
+df_monthly["key"] = df_monthly["item_id"].astype(str) + "_" + df_monthly["store_id"].astype(str)
+df_monthly = df_monthly.drop(columns=["item_id", "store_id"])
+# %%
+df_sales = df_monthly.pivot_table(values="sales_units", index="date", columns="key")
+
+# %%
+df_train = df_sales[df_sales.index <= "2015-08-01"]
+df_test = df_sales[df_sales.index > "2015-08-01"]
+
+# %%
+# Split treat/donor units
+treated_unit = df_train.columns[0]  # Pick some serie
+donor_units = list(df_train.columns[1:])  # Donor series
+
+# Hyperparams
+singvals = 1
+p = 1.0
+
+# Model
+rsc_model = RobustSyntheticControl(
+    treated_unit,
+    singvals,
+    len(df_train),
+    probObservation=1.0,
+    modelType="svd",
+    svdMethod="numpy",
+    otherSeriesKeysArray=donor_units,
+)
+
+# Fit model
+rsc_model.fit(df_train)
+
+# %%
+# Save denoised data
+df_denoised = rscModel.model.denoisedDF()
+
+# Predictions
+predictions = rsc_model.predict(df_test)
+
+# %%
+plt.plot(
+    df_sales.index, df_sales[treated_unit], color="red", label="observations",
+)
+plt.plot(
+    df_sales.index,
+    np.append(df_denoised[treated_unit], predictions, axis=0),
+    color="blue",
+    label="predictions",
+)
+plt.axvline(x=df_test.index[0], linewidth=1, color="black", label="Intervention")
+legend = plt.legend(loc="lower left", shadow=True)
+plt.title(f"{treated_unit} - p = {p:.2f}")
+plt.show()
+
+
+# %%
