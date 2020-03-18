@@ -31,7 +31,7 @@ class MultiRobustSyntheticControl(RobustSyntheticControl):
         # set mRSC specific parms
         self.nbrMetrics = nbrMetrics
         self.weightsArray = weightsArray
-            
+
         if (len(self.weightsArray) != self.nbrMetrics):
             raise Exception('len(weightsArray) must equal self.nbrMetrics')
 
@@ -39,7 +39,7 @@ class MultiRobustSyntheticControl(RobustSyntheticControl):
 
         # initialize the super class
         super(MultiRobustSyntheticControl, self).__init__(seriesToPredictKey, kSingularValuesToKeep, self.combinedM, probObservation, modelType, svdMethod, otherSeriesKeysArray)
-        
+
 
     # helper method to combine metrics appropriately
     # arrayOfKeyToSeriesDF:     (array) contains a keyToSeriesDF for each metric.
@@ -56,7 +56,7 @@ class MultiRobustSyntheticControl(RobustSyntheticControl):
             allKeys = [self.seriesToPredictKey] + self.otherSeriesKeysArray
         else:
             allKeys = self.otherSeriesKeysArray
-        
+
         # scaling by the specified weights
         for i in range(0, self.nbrMetrics):
             arrayOfKeyToSeriesDF[i] = arrayOfKeyToSeriesDF[i].multiply(np.sqrt(self.weightsArray[i]))
@@ -80,7 +80,7 @@ class MultiRobustSyntheticControl(RobustSyntheticControl):
     # Note that the keys provided in the constructor MUST all be present in each keyToSeriesDF
     # The values must be all numpy arrays of floats.
     def fit(self, arrayOfKeyToSeriesDF):
-    	super(MultiRobustSyntheticControl, self).fit(self.combineMetrics(arrayOfKeyToSeriesDF, True))
+        super(MultiRobustSyntheticControl, self).fit(self.combineMetrics(arrayOfKeyToSeriesDF, True))
 
 
     # arrayOfKeyToSeriesDFNew:   (array) contains a keyToSeriesDFNew (Pandas dataframe) for each metric.
@@ -94,7 +94,7 @@ class MultiRobustSyntheticControl(RobustSyntheticControl):
     #
     # Returns an array of prediction arrays, one for each metric
     def predict(self, arrayOfKeyToSeriesDFNew):
-    	allPredictions = super(MultiRobustSyntheticControl, self).predict(self.combineMetrics(arrayOfKeyToSeriesDFNew, False))
+        allPredictions = super(MultiRobustSyntheticControl, self).predict(self.combineMetrics(arrayOfKeyToSeriesDFNew, False))
         predictionsArray = []
         singleMetricPredictionsLength = int((1.0/float(self.nbrMetrics)) * len(allPredictions))
         for i in range(0, self.nbrMetrics):
