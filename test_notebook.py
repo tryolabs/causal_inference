@@ -222,8 +222,10 @@ plt.show()
 # WALMART DATA FOR SEVERAL PRODUCT/STORES
 df_walmart = pd.read_pickle("df_max_sales.pkl")
 # %%
+# Convert categorical columns to str to avoid grouping from recreating empty categories
 df_monthly = (
-    df_walmart.groupby(["item_id", "store_id", pd.Grouper(key="date", freq="M")])["sales_units"]
+    df_walmart.astype({"item_id": str, "store_id": str})
+    .groupby(["item_id", "store_id", pd.Grouper(key="date", freq="W")])["sales_units"]
     .sum()
     .reset_index()
 )
@@ -239,10 +241,11 @@ df_test = df_sales[df_sales.index > "2015-08-01"]
 # %%
 # Split treat/donor units
 treated_unit = df_train.columns[0]  # Pick some serie
-donor_units = list(df_train.columns[1:])  # Donor series
+donor_units = np.array(df_train.columns[1:])  # Donor series
+# donor_units = greater_donors
 
 # Hyperparams
-singvals = 1
+singvals = 10
 p = 1.0
 
 # Model
@@ -281,5 +284,15 @@ legend = plt.legend(loc="lower left", shadow=True)
 plt.title(f"{treated_unit} - p = {p:.2f}")
 plt.show()
 
+
+# %%
+mask_weights = np.abs(rsc_model.model.weights) >= 0.2
+greater_donors = donor_units[mask_weights]
+greater_donors
+
+# %%
+plt.plot(df_train.index, df_train[treated_unit], "r:")
+plt.plot(df_train.index, df_train[greater_donors])
+plt.legend()
 
 # %%
