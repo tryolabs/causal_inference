@@ -1,5 +1,17 @@
 {
+    "files.watcherExclude": {
+        "**/.venv/**": true
+    },
+    "files.exclude": {
+        "**/.venv/": true
+    },
+    "search.exclude": {
+        "**/.venv/": true
+    },
     "git.ignoreLimitWarning": true,
     "python.pythonPath": ".venv/bin/python3",
-    "python.dataScience.notebookFileRoot": "${workspaceFolder}"
+    "python.dataScience.notebookFileRoot": "${workspaceFolder}",
+    "python.linting.pylintEnabled": false,
+    "python.linting.flake8Enabled": true,
+    "python.linting.enabled": true,
 }
