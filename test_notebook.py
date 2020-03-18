@@ -261,7 +261,7 @@ rsc_model.fit(df_train)
 
 # %%
 # Save denoised data
-df_denoised = rscModel.model.denoisedDF()
+df_denoised = rsc_model.model.denoisedDF()
 
 # Predictions
 predictions = rsc_model.predict(df_test)
