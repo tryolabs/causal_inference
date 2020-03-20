@@ -9,7 +9,7 @@ from tslib.src.synthcontrol.multisyntheticControl import MultiRobustSyntheticCon
 
 
 # # %%
-# # Walmart data for several product/sales
+# # Uncomment to generate weekly data.
 # df_walmart_total = pd.read_pickle("df_full.pkl")
 
 # # Convert categorical columns to str to avoid grouping from recreating empty categories
@@ -134,8 +134,7 @@ p = 1.0
 rscmodel1 = RobustSyntheticControl(
     treated_unit,
     singvals,
-    len(df_train_foods1),
-    probObservation=1.0,
+    p=1.0,
     svdMethod="numpy",
     otherSeriesKeysArray=donor_units,
 )
@@ -171,8 +170,7 @@ plt.title(f"{treated_unit} - p = {p:.2f}")
 rscmodel2 = RobustSyntheticControl(
     treated_unit,
     singvals,
-    len(df_train_foods2),
-    probObservation=1.0,
+    p=1.0,
     svdMethod="numpy",
     otherSeriesKeysArray=donor_units,
 )
@@ -207,8 +205,7 @@ plt.title(f"{treated_unit} - p = {p:.2f}")
 rscmodel3 = RobustSyntheticControl(
     treated_unit,
     singvals,
-    len(df_train_foods3),
-    probObservation=1.0,
+    p=1.0,
     svdMethod="numpy",
     otherSeriesKeysArray=donor_units,
 )
@@ -246,13 +243,14 @@ weightsArray = [1.0, 1.0]
 singvals = 4
 
 # Model
+# TODO: Check for M parameter that is commented in multisyntheticControl.py
 mrsc_model = MultiRobustSyntheticControl(
     nbrMetrics,
     weightsArray,
     treated_unit,  # seriesToPredictKey,
     singvals,  # kSingularValuesToKeep
     len(df_train_foods1),  # M
-    probObservation=1.0,
+    p=1.0,
     modelType="svd",
     svdMethod="numpy",
     otherSeriesKeysArray=donor_units,
