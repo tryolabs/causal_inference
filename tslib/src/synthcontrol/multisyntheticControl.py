@@ -22,7 +22,7 @@ class MultiRobustSyntheticControl(RobustSyntheticControl):
     # kSingularValuesToKeep:    (int) the number of singular values to retain
     # M:                        (int) the number of columns in the matrix for EACH metric
     #                                total matrix columns shall be (nbrMetrics * M)
-    # probObservation:          (float) the independent probability of observation of each entry
+    # p:          (float) the independent probability of observation of each entry
     #                           in the matrix
     # modelType:                (string) SVD or ALS. Default is "SVD"
     # svdMethod:                (string) the SVD method to use (optional)
@@ -36,7 +36,7 @@ class MultiRobustSyntheticControl(RobustSyntheticControl):
         seriesToPredictKey,
         kSingularValuesToKeep,
         M,
-        probObservation=1.0,
+        p=1.0,
         modelType="svd",
         svdMethod="numpy",
         otherSeriesKeysArray=[],
@@ -55,8 +55,8 @@ class MultiRobustSyntheticControl(RobustSyntheticControl):
         super(MultiRobustSyntheticControl, self).__init__(
             seriesToPredictKey,
             kSingularValuesToKeep,
-            self.combinedM,
-            probObservation,
+            # self.combinedM,
+            p,
             modelType,
             svdMethod,
             otherSeriesKeysArray,

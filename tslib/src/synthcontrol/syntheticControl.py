@@ -19,7 +19,7 @@ class RobustSyntheticControl(object):
     # seriesToPredictKey:       (string) the series of interest (key)
     # kSingularValuesToKeep:    (int) the number of singular values to retain
     # M:                        (int) the number of columns for the matrix
-    # probObservation:          (float) the independent probability of observation of each entry
+    # p:          (float) the independent probability of observation of each entry
     #                           in the matrix
     # modelType:                (string) SVD or ALS. Default is "SVD"
     # svdMethod:                (string) the SVD method to use (optional)
@@ -69,7 +69,7 @@ class RobustSyntheticControl(object):
                 self.kSingularValues,
                 self.N,
                 M,
-                probObservation=self.p,
+                p=self.p,
                 otherSeriesKeysArray=self.otherSeriesKeysArray,
                 includePastDataOnly=False,
             )
