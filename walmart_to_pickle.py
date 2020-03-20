@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 
 # %%
 # Load sales
-df_sales = pd.read_csv("sales_train_validation.csv")
+df_sales = pd.read_csv("../makridakis/sales_train_validation.csv")
 
 # %%
 
@@ -46,7 +46,7 @@ cols_calendar = {
     "snap_WI": np.uint8,
 }
 
-df_calendar = pd.read_csv("calendar.csv", parse_dates=["date"], dtype=cols_calendar)
+df_calendar = pd.read_csv("../makridakis/calendar.csv", parse_dates=["date"], dtype=cols_calendar)
 
 # %%
 cols_calendar_filter = ["date"] + list(
@@ -64,7 +64,7 @@ cols_prices = {
     "sell_price": np.float32,
 }
 
-df_prices = pd.read_csv("sell_prices.csv", dtype=cols_prices)
+df_prices = pd.read_csv("../makridakis/sell_prices.csv", dtype=cols_prices)
 # %%
 df = df.merge(df_prices, on=["store_id", "item_id", "wm_yr_wk"], how="left",)
 df.drop(columns=["wm_yr_wk"], inplace=True)
@@ -76,6 +76,9 @@ print(f"Sales without shelf price: {len(df[df['sell_price'].isna() & (df['sales_
 # Remove rows without prices (product was not available at that time)
 print(f"Rows without shelf price and no sales (product disabled): {df['sell_price'].isna().sum()}")
 df = df[~df["sell_price"].isna()]
+
+# %%
+df.to_pickle("df_full.pkl")
 
 # %%
 df.info()
