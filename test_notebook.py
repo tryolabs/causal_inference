@@ -13,6 +13,7 @@ import pandas as pd
 import copy
 
 from matplotlib import pyplot as plt
+from sklearn.model_selection import GridSearchCV, TimeSeriesSplit
 
 from tslib.tests import testdata
 from tslib.src import tsUtils
@@ -235,13 +236,25 @@ df_monthly = df_monthly.drop(columns=["item_id", "store_id"])
 df_sales = df_monthly.pivot_table(values="sales_units", index="date", columns="key")
 
 # %%
-df_train = df_sales[df_sales.index <= "2015-08-01"]
-df_test = df_sales[df_sales.index > "2015-08-01"]
+ts_split = TimeSeriesSplit(n_splits=5)
+splits = ts_split.split(df_sales)
+# for train, test in splits:
+#     print(f"Split Train: {len(train)} rows | Test: {len(test)} rows")
+df_sales_idx = df_sales.reset_index().index
+split_masks = [
+    (df_sales_idx.isin(train_idxs), df_sales_idx.isin(test_idxs))
+    for train_idxs, test_idxs in splits
+]
+
+
+# %%
+# df_train = df_sales[df_sales.index <= "2015-08-01"]
+# df_test = df_sales[df_sales.index > "2015-08-01"]
 
 # %%
 # Split treat/donor units
-treated_unit = df_train.columns[0]  # Pick some serie
-donor_units = np.array(df_train.columns[1:])  # Donor series
+treated_unit = df_sales.columns[0]  # Pick some serie
+donor_units = np.array(df_sales.columns[1:])  # Donor series
 # donor_units = greater_donors
 
 # Hyperparams
@@ -249,35 +262,40 @@ singvals = 10
 p = 1.0
 
 # Model
+
 rsc_model = RobustSyntheticControl(
-    treated_unit,
-    singvals,
-    len(df_train),
-    probObservation=1.0,
+    seriesToPredictKey=treated_unit,
+    kSingularValues=singvals,
+    p=p,
     modelType="svd",
     svdMethod="numpy",
     otherSeriesKeysArray=donor_units,
 )
 
+clf = GridSearchCV(rsc_model, {"kSingularValues": [1, 3, 5, 10, 15]}, cv=split_masks)
+clf.fit(df_sales)
+
+# Select best model as rsc_model
+rsc_model = clf.best_estimator_
+
+# Use only the last cross-validation split to test
+last_cv_split = split_masks[-1]
+df_train = df_sales[last_cv_split[0]]
+df_test = df_sales[last_cv_split[1]]
+
 # Fit model
-rsc_model.fit(df_train)
+# rsc_model.fit(df_train)
 
 # %%
 # Save denoised data
-df_denoised = rsc_model.model.denoisedDF()
-
-# Predictions
-predictions = rsc_model.predict(df_test)
+# df_denoised = rsc_model.model.denoisedDF()
 
 # %%
 plt.plot(
     df_sales.index, df_sales[treated_unit], color="red", label="observations",
 )
 plt.plot(
-    df_sales.index,
-    np.append(df_denoised[treated_unit], predictions, axis=0),
-    color="blue",
-    label="predictions",
+    df_sales.index, rsc_model.predict(df_sales), color="blue", label="predictions",
 )
 plt.axvline(x=df_test.index[0], linewidth=1, color="black", label="Intervention")
 legend = plt.legend(loc="lower left", shadow=True)
