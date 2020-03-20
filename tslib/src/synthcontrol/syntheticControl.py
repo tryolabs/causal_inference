@@ -7,13 +7,11 @@
 #
 ################################################################
 import numpy as np
-import pandas as pd
 
 from sklearn.exceptions import NotFittedError
 
 from tslib.src.models.tsSVDModel import SVDModel
 from tslib.src.models.tsALSModel import ALSModel
-from tslib.src import tsUtils
 
 
 class RobustSyntheticControl(object):
@@ -21,10 +19,12 @@ class RobustSyntheticControl(object):
     # seriesToPredictKey:       (string) the series of interest (key)
     # kSingularValuesToKeep:    (int) the number of singular values to retain
     # M:                        (int) the number of columns for the matrix
-    # probObservation:          (float) the independent probability of observation of each entry in the matrix
+    # probObservation:          (float) the independent probability of observation of each entry
+    #                           in the matrix
     # modelType:                (string) SVD or ALS. Default is "SVD"
     # svdMethod:                (string) the SVD method to use (optional)
-    # otherSeriesKeysArray:     (array) an array of keys for other series which will be used to predict
+    # otherSeriesKeysArray:     (array) an array of keys for other series which will be used to
+    #                           predict
 
     def __init__(
         self,
@@ -94,9 +94,10 @@ class RobustSyntheticControl(object):
         self.create_model(X_train)
         self.model.fit(X_train)
 
-    # otherKeysToSeriesDFNew:     (Pandas dataframe) needs to contain all keys provided in the model;
-    #                               all series/array MUST be of length >= 1,
-    #                               If longer than 1, then the most recent point will be used (for each series)
+    # otherKeysToSeriesDFNew: (Pandas dataframe) needs to contain all keys provided in the model;
+    #                          all series/array MUST be of length >= 1,
+    #                          If longer than 1, then the most recent point will be used (for each
+    #                          series)
     def predict(self, otherKeysToSeriesDFNew):
         if self.model is None:
             raise NotFittedError("Cannot call predict() before fit()")
